@@ -19,7 +19,7 @@ lgb_params =  {
     'is_training_metric': True,
     'min_data_in_leaf': 12,
     'num_leaves': 32,
-    'learning_rate': 0.05,
+    'learning_rate': 0.04,
     'feature_fraction': 0.8,
     'bagging_fraction': 0.8,
     'verbosity':-1,
@@ -54,3 +54,11 @@ res=res.sort_values(by='label',ascending=False)
 res.label=res.label.map(lambda x: 1 if x>=0.26 else 0)
 res.label = res.label.map(lambda x: int(x))
 res.to_csv('result.csv',index=False,header=False,sep=',',columns=['uid','label'])
+
+from sklearn.externals import joblib
+joblib.dump(model, 'model.pkl')
+
+df = pd.DataFrame(dtrain.feature_name, columns=['feature'])
+df['important'] = list(model.feature_importance())
+df = df.sort_values(by='important', ascending=False)
+df.to_csv('feature_score.csv', index=None, encoding='gbk')

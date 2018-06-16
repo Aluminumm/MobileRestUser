@@ -21,7 +21,6 @@ wa = pd.concat([wa_train,wa_test],axis=0)
 
 #通话记录
 voice_opp_num = voice.groupby(['uid'])['opp_num'].agg({'unique_count': lambda x: len(pd.unique(x)),'count':'count'}).add_prefix('voice_opp_num_').reset_index()
-voice_opp_head=voice.groupby(['uid'])['opp_head'].agg({'unique_count': lambda x: len(pd.unique(x))}).add_prefix('voice_opp_head_').reset_index()
 voice_opp_len=voice.groupby(['uid','opp_len'])['uid'].count().unstack().add_prefix('voice_opp_len_').reset_index().fillna(0)
 voice_call_type = voice.groupby(['uid','call_type'])['uid'].count().unstack().add_prefix('voice_call_type_').reset_index().fillna(0)
 voice_in_out = voice.groupby(['uid','in_out'])['uid'].count().unstack().add_prefix('voice_in_out_').reset_index().fillna(0)
@@ -49,15 +48,13 @@ voice_opp_head_y = voice.groupby(['uid','opp_head_size'])['uid'].count().unstack
 voice_opp_head = pd.merge(voice_opp_head, voice_opp_head_y, how='left', on='uid')
 
 '''
+voice_opp_date = voice.groupby(['uid','start_date'])['uid'].count().unstack().add_prefix('voice_start_date_').reset_index().fillna(0)
 voice['start_date'] = (voice['start_time'] / 1000000).astype('int')
-voice['start_hour'] = ((voice['start_time'] / 10000).astype('int')) % 100
-voice_hour = voice.groupby(['uid'])['start_hour'].agg(['std','max','min','median']).add_prefix('voice_start_hour_').reset_index()
-voice_date = voice.groupby(['uid'])['start_date'].agg(['max','min','median']).add_prefix('voice_start_date_').reset_index()
+voice_date = voice.groupby(['uid','start_date'])['start_date'].agg(['max','min','median']).add_prefix('voice_start_date_').reset_index()
 '''
 
 #短信记录
 sms_opp_num = sms.groupby(['uid'])['opp_num'].agg({'unique_count': lambda x: len(pd.unique(x)),'count':'count'}).add_prefix('sms_opp_num_').reset_index()
-sms_opp_head=sms.groupby(['uid'])['opp_head'].agg({'unique_count': lambda x: len(pd.unique(x))}).add_prefix('sms_opp_head_').reset_index()
 sms_opp_len=sms.groupby(['uid','opp_len'])['uid'].count().unstack().add_prefix('sms_opp_len_').reset_index().fillna(0)
 sms_in_out = sms.groupby(['uid','in_out'])['uid'].count().unstack().add_prefix('sms_in_out_').reset_index().fillna(0)
 sms_in_out['in_larger_out'] = sms_in_out['sms_in_out_1'] - sms_in_out['sms_in_out_0']
@@ -70,7 +67,6 @@ sms_in_larger_out = sms.groupby(['uid','opp_num','in_out'])['uid'].count().unsta
 sms_in_larger_out['in_larger_out'] = sms_in_larger_out['sms_in_vs_out_0'] - sms_in_larger_out['sms_in_vs_out_1']
 sms_in_larger_out = sms_in_larger_out.groupby(['uid'])['in_larger_out'].agg(['max','min','median']).add_prefix('sms_opp_in&out_').reset_index().fillna(0)
 
-
 sms_opp_head = sms.groupby(['uid'])['opp_head'].agg(
     {'unique_count': lambda x: len(pd.unique(x)), 'max_count': lambda x: x.value_counts().index[0]}).add_prefix('sms_opp_head_').reset_index()
 def opp_head_size(x):
@@ -80,7 +76,8 @@ def opp_head_size(x):
 sms['start_date'] = (sms['start_time'] / 1000000).astype('int')
 sms['start_hour'] = ((sms['start_time'] / 10000).astype('int')) % 100
 sms_hour = sms.groupby(['uid'])['start_hour'].agg(['std','max','min','median','mean']).add_prefix('sms_start_hour_').reset_index()
-sms_date = sms.groupby(['uid'])['start_date'].agg(['std','max','min','median','mean']).add_prefix('sms_start_date_').reset_index()
+sms_date = sms.groupby(['uid','start_date'])['start_date'].agg(['std','max','min','median','mean']).add_prefix('sms_start_date_').reset_index()
+sms_opp_date = sms.groupby(['uid','start_date'])['uid'].count().unstack().add_prefix('sms_start_date_').reset_index().fillna(0)
 '''
 
 #网站\APP记录
